@@ -46,7 +46,7 @@ Now to add ACE and NME to the hydrogen-removed-pdb, run following command:
   $z_2 = z_g - \frac{(z_a - z_g)}{2} - \frac{\sqrt{3}}{2} \left( n_x (y_a - y_g) - n_y (x_a - x_g) \right)$
   
   
-  Where ($n_x, n_y, n_z$) is an arbritrary orientation as in 3D the two vertices can be rotated about the other vertex and the centroid abritrarily i.e infinite solutions. We select these unit vector randomly using `np.random`, it really does not matter. The coordinates generated above may be a over 2 Å. So finally we rescale the bonds such that they are around 1.4 Å. 
+  Where ($n_x, n_y, n_z$) is an arbritrary orientation as in 3D the two vertices can be rotated about the other vertex and the centroid abritrarily i.e infinite solutions. We select these unit vector randomly using `np.random`, it really does not matter. The coordinates generated above may be a over 2 Å apart. So finally we rescale the bonds such that they are around 1.4 Å. 
 
 ### Create universe
 MDAnalysis universe are created for above `ACE` and `NME`. 
