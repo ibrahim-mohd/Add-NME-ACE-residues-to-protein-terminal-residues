@@ -5,7 +5,7 @@ This code adds NME and ACE groups to protein terminal residues. The pdb file may
 ## Dependencies
 1. Python3 (I tested with 3.11.7), should also work for other python3 versions
 2. MDAnalysis (I tested with 2.7.0), should also work for other versions
-3. Numpy (I tested with 1.26.4), but should also workd with other versions
+3. Numpy (I tested with 1.26.4), but should also work with other versions
 
 Before running the command make sure that the input protein has all the waters and other stuff removed. Also **remove all the Hydrogens**, tleap can add it automatically later. You can remove the hydrogen by using the following quick command, considering your protein is named `protein.pdb`:
 
