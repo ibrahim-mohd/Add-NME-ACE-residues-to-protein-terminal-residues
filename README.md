@@ -48,7 +48,7 @@ Now to add ACE and NME to the hydrogen-removed-pdb, run following command:
   
   Where ($n_x, n_y, n_z$) is an arbritrary orientation as in 3D the two vertices can be rotated about the other vertex and the centroid abritrarily i.e infinite solutions. We select these unit vector randomly using `np.random`, it really does not matter. The coordinates generated above may be a over 2 Å. So finally we rescale the bonds such that they are around 1.4 Å. 
 
-## Create universe
+### Create universe
 MDAnalysis universe are created for above `ACE` and `NME`. 
-  1. The names of `ACE` atoms are **C, CH3, O**. While the NME atoms are named **N, C**. Note that in earlier ambertools the NME are named **N, CH3**, so one can replace C with CH3 for such cases if later one tleap complains about name not being found.
+  1. The names of `ACE` atoms are **C, CH3, O**. While the NME atoms are named **N, C**. Note that in earlier ambertools the NME are named **N, CH3**, so one can replace C with CH3 for such cases if later on tleap complains about atom names not being found.
  2. The ACE, protein and NME universes are merged with MDAnalysis `mda.Merge` function and the final pdb is written
