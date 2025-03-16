@@ -1,6 +1,6 @@
 # Add NME and ACE chemical groups to protein terminal residues
 ## Description
-This code adds NME and ACE groups to protein terminal residues. The pdb file may contain one or more than one chains. In case of multiple chains, the scripts adds NME and ACE to each chains. Note that chains are detected from the chain labels like 'A', 'B' etc using MDAnalysis `mda.segments` function. Also make sure that terminal residues have backbone `C`, `O` and `CA` atoms.
+This code adds NME and ACE groups to protein terminal residues. The pdb file may contain one or more than one chains. In case of multiple chains, the scripts adds NME and ACE to each chains. Note that chains are detected from the chain labels like 'A', 'B' etc using MDAnalysis `mda.segments` function. Also make sure that terminal residues have backbone `C`, `O` and `CA` atoms. Also note that the output **removes TER** in multi chain systems, so before running tleap add TER between residues. It can be done with a quick bash command that adds TER between lines where one line has NME and the next one has ACE. 
 
 ## Dependencies
 1. Python3 (I tested with 3.11.7), should also work for other python3 versions
