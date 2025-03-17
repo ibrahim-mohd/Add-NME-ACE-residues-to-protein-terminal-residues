@@ -26,7 +26,7 @@ Now to add ACE and NME to the hydrogen-removed-pdb, run following command:
 2. If there is no `OXT`,  the `N` atom is connected to the backbone `C` along the vector connecting the backbone `C` position and the mid-point of `CA` and `O` atoms of the backbone.
 ### To add ACE
 1. The first carbon of ACE is connected to the backbone `N` and along the vector connecting backbone `CA` and `N` atoms.
-2. To add the other carbon and oxygen of ACE, we imagine the backbone `N`, the other carbon and oxygen to be the vertices of an equilateral triangle with the previously added carbon as the centroid of the triangle. The vertices of other two vertices given one vertex ($x_a, y_a, z_a$) and centroid ($x_g, y_g, z_g$) of an equilateratl triangle is obtained as:
+2. To add the other carbon and oxygen of ACE, we imagine the backbone `N`, the other carbon and oxygen to be the vertices of an equilateral triangle with the previously added carbon as the centroid of the triangle. The coordinates of other two vertices given one vertex ($x_a, y_a, z_a$) and centroid ($x_g, y_g, z_g$) of an equilateratl triangle is obtained as:
 
    
   First vertex:
