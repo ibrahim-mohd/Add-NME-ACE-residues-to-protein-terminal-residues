@@ -1,3 +1,6 @@
+# Written by Mohd Ibrahim
+# Technical University of Munich
+# Email: ibrahim.mohd@tum.de
 import numpy as np
 import MDAnalysis as mda
 import argparse
