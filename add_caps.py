@@ -36,89 +36,96 @@ def create_universe (n_atoms, name, resname, positions, resids, segid):
 
 
     return u_new
-    
+
+def calcCoordinate(a, b, c, bond_len, theta, di_angle):
+    """
+    Calculate position of fourth atom 'd' based on input atoms a,b,c
+    and known geometry wrt a,b,c.
+    bond_len: c-d bond length (angstrom)
+    theta: b,c,d angle (degrees)
+    di_angle: a,b,c,d dihedral (degrees)
+
+    with thanks to https://github.com/osita-sunday-nnyigide/Pras_Server/
+    """
+    di_angle = np.deg2rad(di_angle)
+
+    u = c - b
+    x = a - b
+    v = ((x) - (np.dot((x), u)/np.dot(u,u))*u)
+
+    w = np.cross(u, x)
+
+    q = (v/np.linalg.norm(v))*np.cos(di_angle)
+    e = (w/np.linalg.norm(w))*np.sin(di_angle)
+
+    pos_temp2 = np.array((b + (q+e)))
+
+    u1 = b - c
+    y1 = pos_temp2 - c
+
+    mag_y1 = np.linalg.norm(y1)
+    mag_u1 = np.linalg.norm(u1)
+
+    theta_bcd = np.arccos(np.dot(u1,y1)/(mag_u1*mag_y1))
+    rotate = np.deg2rad(theta) - theta_bcd
+
+    z  = np.cross(u1, y1)
+    n = z/np.linalg.norm(z)
+
+    pos_ini = c + y1*np.cos(rotate) +\
+              (np.cross(n,y1)*np.sin(rotate))\
+              + n*(np.dot(n,y1))*(1-np.cos(rotate))
+
+    d = ((pos_ini-c)*(bond_len/np.linalg.norm(pos_ini-c)))+c
+
+    return d
+
 def get_nme_pos (end_residue):
 
-    if "OXT" in end_residue.names:
-        index = np.where (end_residue.names == "OXT")[0][0]
-        N_position = end_residue.positions [index]
-        index_c = np.where (end_residue.names == "C")[0][0]
-        carbon_position = end_residue.positions [index_c]
-        vector = N_position - carbon_position
-        vector /= np.sqrt (sum(vector**2))
-        
-        C_position = N_position + vector*1.36
+    # find midpoint of O and CA
+    index_o = np.where (end_residue.names == "O")[0][0]
+    index_ca = np.where (end_residue.names == "CA")[0][0]
+    index_c = np.where(end_residue.names=='C')[0][0]
 
-        return N_position, C_position
+    pos_o = end_residue.positions[index_o]
+    pos_ca = end_residue.positions[index_ca]
+    pos_c = end_residue.positions[index_c]
 
-    else:
-        # find midpoint of O and CA
-        index_o = np.where (end_residue.names == "O")[0][0]
-        index_ca = np.where (end_residue.names == "CA")[0][0]
+    #bisect the O, C, CA angle
+    v1 = pos_o-pos_c
+    v1 /= np.linalg.norm(v1)
+    v2 = pos_ca-pos_c
+    v2 /= np.linalg.norm(v2)
+    bisector = v1 + v2
+    bisector /= np.linalg.norm(bisector)
+    # apply translation to NME N atom from main chain C atom
+    # in direction opposite bisector:
+    bondLength = 1.34
+    N_position = bondLength * -(bisector) + pos_c
 
-        mid_point = (end_residue.positions [index_o] + end_residue.positions [index_ca] )/2
+    # now place NME [C] position using bond length, angle,
+    # and dihedral angle of 0deg, where dihedral is O=C-N-[C]
+    bondLength = 1.45
+    C_position = calcCoordinate(pos_o, pos_c, N_position, bondLength, 120, 0)
 
-        # find vector connecting mid_point and C
-        index_c = np.where (end_residue.names == "C")[0][0]
-        vector  = end_residue.positions [index_c] - mid_point
-        vector /= np.sqrt (sum(vector**2))
-        N_position = end_residue.positions [index_c] + 1.36* vector
-        ##
-        C_position = N_position + 1.36*vector
-    
-    return N_position, C_position 
+    return N_position, C_position
 
 def get_ace_pos (end_residue):
-    
+
+    index_c = np.where (end_residue.names == "C")[0][0]
     index_ca = np.where (end_residue.names == "CA")[0][0]
     index_n  = np.where (end_residue.names == "N")[0][0]
-    vector   = end_residue.positions [index_n] - end_residue.positions [index_ca] 
-    vector  /= np.sqrt (sum(vector**2))
 
-    C1_position = end_residue.positions [index_n] + 1.36*vector
+    pos_c = end_residue.positions[index_c]
+    pos_ca = end_residue.positions[index_ca]
+    pos_n = end_residue.positions[index_n]
 
-    xa, ya, za =  end_residue.positions [index_ca] 
-    xg, yg, zg = C1_position
+    # C-CA-N-C dihedral has two minima at -60,60
+    C_position = calcCoordinate(pos_c, pos_ca, pos_n, 1.34, 120, -60)
+    CH3_position = calcCoordinate(pos_ca, pos_n, C_position, 1.52, 120, 180)
+    O_position = calcCoordinate(pos_ca, pos_n, C_position, 1.23, 120, 0)
 
-    # arbritray unit vector
-    # create an arbritray orientaiton for the ACE residue
-    # does not really matter
-    orientation  = np.array([2*np.random.rand () -1, 2*np.random.rand () -1,2*np.random.rand () -1])
-    nx, ny, nz =  orientation/np.sqrt (sum(orientation**2))
-
-    ## The carbon and oxygen are placed on the vertices of an equilatrel triangle
-    # with another vertex as the Nitrogen atom and the C as the centroid
-    # The plane of the triangle is placed in an arbritrary orientation as defined before
-    # The orientation does not matter
-    ######################################
-    x1 = xg - (xa-xg)/2 + np.sqrt (3)*(ny*(za-zg) - nz*(ya-yg))/2
-    y1 = yg - (ya-yg)/2 + np.sqrt (3)*(nz*(xa-xg) - nx*(za-zg))/2
-    z1 = zg - (za-zg)/2 + np.sqrt (3)*(nx*(ya-yg) - ny*(xa-xg))/2
-    
-    ## second coordinate
-    x2 = xg - (xa-xg)/2 - np.sqrt (3)*(ny*(za-zg) - nz*(ya-yg))/2
-    y2 = yg - (ya-yg)/2 - np.sqrt (3)*(nz*(xa-xg) - nx*(za-zg))/2
-    z2 = zg - (za-zg)/2 - np.sqrt (3)*(nx*(ya-yg) - ny*(xa-xg))/2
-
-    C2_position = np.array ([x1,y1,z1])
-    O_position = np.array ([x2,y2,z2])
-
-    ### rescale distances, the above points may be a bit far apart like 2.1 angstrom but usual bonds are 1.4 or so
-    ## Therefore we shrink it
-    #  C positinos
-    
-    vector = C2_position - C1_position
-    vector /= np.sqrt (sum (vector**2))
-    
-    C2_position = C1_position + 1.36*vector
-
-    # O positions
-    vector = O_position - C1_position
-    vector /= np.sqrt (sum (vector**2))
-    
-    O_position = C1_position + 1.36*vector
-    
-    return C1_position, C2_position, O_position
+    return C_position, CH3_position, O_position
 
 
 ##
@@ -130,7 +137,7 @@ res_start = 0
 segment_universes = []
 
 for seg in u.segments:
-    
+
     chain = u.select_atoms(f"segid {seg.segid}")
 
     # Add ACE
@@ -139,24 +146,24 @@ for seg in u.segments:
     ace_positions = get_ace_pos (end_residue)
     ace_names = ["C", "CH3", "O"]
     resid = chain.residues.resids[0]
-    kwargs = dict (n_atoms=len(ace_positions), name=ace_names, 
+    kwargs = dict (n_atoms=len(ace_positions), name=ace_names,
                       resname=len(ace_names)*["ACE"], positions=ace_positions,
                       resids=resid*np.ones(len(ace_names)),
                       segid=chain.segids[0])
-    
+
     ace_universe =  create_universe (**kwargs)
 
-    # Add NME 
+    # Add NME
     resid_c     = chain.residues.resids [-1]
     end_residue = u.select_atoms(f"segid {seg.segid} and resid {resid_c}")
 
-     
+
     nme_positions = get_nme_pos (end_residue)
     nme_names   = ["N", "C"]
-    
+
     resid = chain.residues.resids[-1]+2
-    
-    kwargs = dict (n_atoms=len(nme_names), name=nme_names, 
+
+    kwargs = dict (n_atoms=len(nme_names), name=nme_names,
                       resname=len(nme_names)*["NME"], positions=nme_positions,
                       resids=resid*np.ones(len(nme_names)),
                       segid=chain.segids[0])
@@ -164,18 +171,18 @@ for seg in u.segments:
     nme_universe =  create_universe (**kwargs)
     ## Merge Universe
     if "OXT" in end_residue.names:
-        
+
         index = np.where (end_residue.names == "OXT")[0][0]
         OXT   = end_residue [index]
-        
+
         Chain     = u.select_atoms(f"segid {seg.segid} and not index {OXT.index}")
-    
+
     else:
-        
+
         Chain     = u.select_atoms(f"segid {seg.segid}")
 
     ### Merge ACE, Protien and NME
-    
+
     u_all = mda.Merge (ace_universe.atoms, Chain, nme_universe.atoms)
 
 
@@ -183,10 +190,10 @@ for seg in u.segments:
     resids_ace = [res_start+1, res_start+1, res_start+1]
     resids_pro = np.arange (resids_ace[0]+1, Chain.residues.n_residues+resids_ace[0]+1)
     resids_nme = [resids_pro[-1]+1,resids_pro[-1]+1]
-    
+
     u_all.atoms.residues.resids =  np.concatenate ([resids_ace,resids_pro,resids_nme])#np.arange (1+res_start, len(u_all.atoms.residues.resids)+res_start+1)
-    
-    res_start = u_all.atoms.residues.resids[-1] 
+
+    res_start = u_all.atoms.residues.resids[-1]
 
     segment_universes.append (u_all)
 
