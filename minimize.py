@@ -17,7 +17,7 @@ for residue in mod.topology.residues():
             system.setParticleMass(atom.index, 0)
             
 integrator = LangevinIntegrator(250*kelvin,1/picosecond,1*femtosecond)
-sim = Simulation(pdb.topology, system, integrator, openmm.Platform.getPlatformByName('CPU'))
+sim = Simulation(mod.topology, system, integrator, openmm.Platform.getPlatformByName('CPU'))
 sim.context.setPositions(mod.positions)
 sim.minimizeEnergy()
 
