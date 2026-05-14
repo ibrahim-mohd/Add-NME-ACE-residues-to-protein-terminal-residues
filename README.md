@@ -54,3 +54,7 @@ Now to add ACE and NME to the hydrogen-removed-pdb, run following command:
 MDAnalysis universe are created for above `ACE` and `NME`. 
   1. The names of `ACE` atoms are **C, CH3, O**. While the NME atoms are named **N, C**. Note that in earlier ambertools the NME are named **N, CH3**, so one can replace C with CH3 for such cases if later on tleap complains about atom names not being found.
  2. The ACE, protein and NME universes are merged with MDAnalysis `mda.Merge` function and the final pdb is written
+
+## References
+If you use this in published work, please cite the following reference:
+*Protein–Protein Interaction Stabilizers from MD Simulation-Derived Pharmacophores*, Mohd Ibrahim and Martin Zacharias, **[J. Chem. Inf. Model. 2026](https://doi.org/10.1021/acs.jcim.6c00290)**
