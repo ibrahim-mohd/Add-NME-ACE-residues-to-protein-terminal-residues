@@ -57,4 +57,5 @@ MDAnalysis universe are created for above `ACE` and `NME`.
 
 ## References
 If you use this in published work, please cite the following reference:
+
 *Protein–Protein Interaction Stabilizers from MD Simulation-Derived Pharmacophores*, Mohd Ibrahim and Martin Zacharias, **[J. Chem. Inf. Model. 2026](https://doi.org/10.1021/acs.jcim.6c00290)**
