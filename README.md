@@ -22,33 +22,11 @@ Now to add ACE and NME to the hydrogen-removed-pdb, run following command:
 ## How it works
   The script reads the hydrogen-less pdb file using MDAnalysis. 
 ### To add NME
-1. If the first residue has an `OXT`, we remove it and place an `N` atom of NME. The carbon atom of NME is added at a distance of 1.36 Å along the `C-N` vector. Where `C` is the protein backbone carbon atom.
-2. If there is no `OXT`,  the `N` atom is connected to the backbone `C` along the vector connecting the backbone `C` position and the mid-point of `CA` and `O` atoms of the backbone.
-### To add ACE
-1. The first carbon of ACE is connected to the backbone `N` and along the vector connecting backbone `CA` and `N` atoms.
-2. To add the other carbon and oxygen of ACE, we imagine the backbone `N`, the other carbon and oxygen to be the vertices of an equilateral triangle with the previously added carbon as the centroid of the triangle. The coordinates of other two vertices given one vertex ($x_a, y_a, z_a$) and centroid ($x_g, y_g, z_g$) of an equilateratl triangle is obtained as:
+The NME `N` atom is added to satisfy a trigonal planar geometry around terminal residue `C` using the `C`, `O`, and `CA` positions as inputs. The NME `C`, is added to satisfy the NME `N`-`C` bond length, the residue `C`, NME `N`, NME `C` angle of 120deg, and residue `O`, residue `C`, NME `N`, NME `C` dihedral of 0deg.
 
-   
-  First vertex:
-  
-  
-  $x_1 = x_g - \frac{(x_a - x_g)}{2} + \frac{\sqrt{3}}{2} \left( n_y (z_a - z_g) - n_z (y_a - y_g) \right)$
-  
-  
-  $y_1 = y_g - \frac{(y_a - y_g)}{2} + \frac{\sqrt{3}}{2} \left( n_z (x_a - x_g) - n_x (z_a - z_g) \right)$
-  
-  $z_1 = z_g - \frac{(z_a - z_g)}{2} + \frac{\sqrt{3}}{2} \left( n_x (y_a - y_g) - n_y (x_a - x_g) \right)$
-  
-  Second vertex:
-  
-  $x_2 = x_g - \frac{(x_a - x_g)}{2} - \frac{\sqrt{3}}{2} \left( n_y (z_a - z_g) - n_z (y_a - y_g) \right)$
-  
-  $y_2 = y_g - \frac{(y_a - y_g)}{2} - \frac{\sqrt{3}}{2} \left( n_z (x_a - x_g) - n_x (z_a - z_g) \right)$
-  
-  $z_2 = z_g - \frac{(z_a - z_g)}{2} - \frac{\sqrt{3}}{2} \left( n_x (y_a - y_g) - n_y (x_a - x_g) \right)$
-  
-  
-  Where ($n_x, n_y, n_z$) is an arbritrary orientation as in 3D the two vertices can be rotated about the other vertex and the centroid abritrarily i.e infinite solutions. We select these unit vector randomly using `np.random`, it really does not matter. The coordinates generated above may be a over 2 Å apart. So finally we rescale the bonds such that they are around 1.4 Å. 
+### To add ACE
+ACE `C`, `CH3`, and `O` atoms are added using the expected bond length, bond angles, and dihedral angles implied by the backbone of the N-terminal residue.
+
 
 ### Create universe
 MDAnalysis universe are created for above `ACE` and `NME`. 
